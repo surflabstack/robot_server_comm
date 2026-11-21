@@ -7,7 +7,7 @@
     Reliable robot to Mission Planner Server communication: subscribes to any set of
     sensor topics and streams them to a server over a pluggable transport.
   </description>
-  <maintainer email="anasderkaoui@users.noreply.github.com">Anas Derkaoui</maintainer>
+  <maintainer email="359507112+surflabstack@users.noreply.github.com">Anas Derkaoui</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
