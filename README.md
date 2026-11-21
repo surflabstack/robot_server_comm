@@ -145,7 +145,7 @@ The payload is the message exactly as ROS 2 serialized it (CDR, the OMG standard
 
 - **No conversion cost.** A point cloud of more than a megabyte or a 1920 x 1200 image is never parsed or re-encoded on the robot.
 - **Works for every message type**, including custom ones, with no per type code.
-- **Portable.** CDR carries its own byte order flag and is readable from C++, Python, Java or Rust, so the server does not need ROS. The local server proves it: it decodes IMU, GNSS, point cloud and image messages with a small CDR reader (about 150 lines) and no ROS dependency.
+- **Portable.** CDR carries its own byte order flag and is readable from C++, Python, Java or Rust, so the server does not need ROS. The local server proves it: it decodes IMU, GNSS, odometry, velocity, point cloud and image messages with a small CDR reader (about 150 lines) and no ROS dependency.
 - **Self describing enough.** Each frame carries the topic and the type name, so the server knows how to interpret the bytes.
 
 The header is deliberately binary and fixed size rather than JSON: it is parsed with a few shifts, has no dependency, and its checksum is verified before the receiver waits for (or allocates memory for) the body. A corrupt length field can therefore not make the server wait for gigabytes.
@@ -168,7 +168,7 @@ sudo sysctl -w net.core.rmem_max=67108864 net.core.rmem_default=67108864
 2. The transmitter stamps the message with the time and a per topic sequence number.
 3. The worker thread takes messages from the queue, builds the 40 byte header and writes header and payload with a single gather write (`sendmsg`), so large payloads are not copied again.
 
-**Real time behaviour and bounded memory.** The queue is limited in messages (200) and in bytes (64 MB). When it is full, the **oldest** message is dropped: for live sensor data a fresh measurement is worth more than a stale one, and memory use stays bounded however long the outage lasts. Every drop is counted on the robot and visible on the server as a gap in the sequence numbers. On a constrained link, `topic_rate_limits` lowers the rate of chosen topics (for example the camera) without touching the others.
+**Real time behaviour and bounded memory.** The queue is limited in messages (200) and in bytes (64 MB). When it is full, the **oldest** message is dropped: for live sensor data a fresh measurement is worth more than a stale one, and memory use stays bounded however long the outage lasts. Every drop is counted on the robot and visible on the server as a gap in the sequence numbers. On a constrained link, `topic_rate_limits` lowers the rate of chosen topics (for example the LiDAR) without touching the others.
 
 **Connection management.**
 
@@ -239,7 +239,7 @@ To see the reconnection logic, stop the server with Ctrl+C while the bag is play
 Server, one line per received message (limited to one line per topic every 500 ms by default) and a statistics table every 5 seconds. Lines taken from a run with HK-Data20190117 in Docker on a laptop:
 
 ```
-[SERVER] client #1 connected from 127.0.0.1:49728
+[SERVER] client #1 connected from 127.0.0.1:36348
 [HELLO] client #1 is robot 'urbanloco_vehicle' (protocol v1)
 [DATA] robot=urbanloco_vehicle topic=/imu/data type=sensor_msgs/msg/Imu seq=911 size=324 B latency=0.41 ms | stamp=1547714248.854880094 frame=/imu accel=[-0.001, -0.002, 0.098] m/s^2 gyro=[-0.002, 0.000, 0.011] rad/s
 [DATA] robot=urbanloco_vehicle topic=/velodyne_points_0 type=sensor_msgs/msg/PointCloud2 seq=87 size=1.76 MB latency=16.01 ms | stamp=1547714248.459463936 frame=velodyne points=57765 (57765x1) point_step=32 B fields=x,y,z,intensity,ring data=1.76 MB
