@@ -16,6 +16,8 @@ Contents: [Dataset](#dataset) · [Architecture](#overall-software-architecture) 
 
 I chose HK-Data20190117 rather than the 41.6 GB HK-Data20190426-2 given as an example: it is about seven times smaller and still has 20 topics from an IMU, a 3D LiDAR and two GNSS receivers. The package works with any UrbanLoco recording, or any other rosbag, without change. The rosbag is not stored in this repository.
 
+This recording has no camera topic. The package does not depend on one: images are forwarded like any other message, the server decodes `sensor_msgs/msg/Image` and `sensor_msgs/msg/CompressedImage`, and the tests cover image messages and a 16 MB payload.
+
 Topics of the recording, from `ros2 bag info`:
 
 | Sensor | Topic | Message type | Messages | Rate |
