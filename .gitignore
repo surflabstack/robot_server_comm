@@ -1,0 +1,15 @@
+# colcon / CMake output
+build/
+install/
+log/
+cmake-build-*/
+
+# rosbags are large and must not be committed (the README links to the dataset)
+*.bag
+*.db3
+*.mcap
+
+# editors
+.vscode/
+.idea/
+*.swp

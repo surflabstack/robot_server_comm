@@ -1,0 +1,55 @@
+# Parameters of the sensor bridge node.
+#
+# server_host, server_port and robot_id are set by the launch file arguments
+# (server_host:=..., server_port:=..., robot_id:=...). When the node is started
+# with "ros2 run", they can be given with -p or added to this file.
+/**:
+  ros__parameters:
+    # Transport used to reach the server. Registered transports: tcp.
+    protocol: "tcp"
+
+    # Topics to forward. One empty string means "every topic that appears",
+    # which is how all the topics of the rosbag are picked up automatically.
+    # (ROS 2 parameter files do not accept an empty list, hence the [""].)
+    # Explicit list for the standard sensor topics of HK-Data20190117:
+    #   topics: ["/imu/data", "/velodyne_points_0", "/ublox_gps_node/fix",
+    #            "/ublox_gps_node/fix_velocity", "/navsat/fix", "/navsat/odom"]
+    topics: [""]
+
+    # Topics never forwarded when "topics" is left empty (ROS internals, not sensors).
+    exclude_topics: ["/rosout", "/parameter_events", "/clock",
+                     "/events/read_split", "/events/write_split"]
+
+    # Optional per topic rate limit, written "topic:max_hz". Useful on a real
+    # (slow) link, for example to send the LiDAR at 5 Hz and keep the IMU at full rate:
+    #   topic_rate_limits: ["/velodyne_points_0:5.0"]
+    topic_rate_limits: [""]
+
+    # How often new topics are looked for, in seconds. Start the node before
+    # the bag: a topic is forwarded from the first discovery after it appears.
+    discovery_period_s: 0.5
+
+    # Subscription QoS. "auto" matches what the publishers offer.
+    qos_reliability: "auto"   # auto | reliable | best_effort
+    # Messages ROS keeps per topic while the node is busy. 50 absorbs bursts,
+    # for example half a second of the 100 Hz IMU.
+    qos_depth: 50
+
+    # Messages waiting for the link. When a limit is reached the OLDEST message
+    # is dropped, so memory stays bounded and fresh data goes first.
+    max_queue_messages: 200
+    max_queue_megabytes: 64
+
+    # Connection management (milliseconds).
+    connect_timeout_ms: 2000
+    send_timeout_ms: 2000
+    reconnect_initial_delay_ms: 500   # doubles after each failed attempt...
+    reconnect_max_delay_ms: 8000      # ...up to this value
+    heartbeat_period_ms: 1000
+
+    # CRC-32 on every frame body. Can be turned off to save CPU on very high data rates.
+    enable_crc: true
+
+    # Terminal output of the node (seconds, 0 disables).
+    status_period_s: 5.0
+    log_period_s: 2.0
